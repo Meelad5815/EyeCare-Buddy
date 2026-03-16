@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EyeCare Buddy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header card">
+    <div>
+      <h1>👁️ EyeCare Buddy</h1>
+      <p>Prevent eye strain with smart reminders, exercises, and analytics.</p>
+    </div>
+    <div class="header-actions">
+      <button id="startSessionBtn" class="btn btn-primary">Start Session</button>
+      <button id="stopSessionBtn" class="btn btn-danger" disabled>Stop Session</button>
+    </div>
+  </header>
+
+  <main class="app-grid">
+    <section class="card controls">
+      <h2>Session & Reminder Controls</h2>
+      <div class="form-grid">
+        <label>
+          Session Limit (minutes)
+          <input id="sessionLimit" type="number" min="15" max="240" step="5" />
+        </label>
+        <label>
+          Eye Reminder Interval (minutes)
+          <input id="eyeInterval" type="number" min="10" max="90" step="5" />
+        </label>
+        <label>
+          Physical Break Interval (minutes)
+          <input id="physicalInterval" type="number" min="15" max="120" step="5" />
+        </label>
+        <label>
+          Breathing Break Interval (minutes)
+          <input id="breathingInterval" type="number" min="15" max="120" step="5" />
+        </label>
+        <label>
+          Alert Style
+          <select id="notificationStyle">
+            <option value="modal">Modal Pop-up</option>
+            <option value="toast">Toast Notifications</option>
+          </select>
+        </label>
+        <label>
+          Reminder Sound
+          <select id="soundType">
+            <option value="chime">Soft Chime</option>
+            <option value="beep">Gentle Beep</option>
+            <option value="none">No Sound</option>
+          </select>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <label><input type="checkbox" id="autoStop" /> Auto-stop session at limit</label>
+        <label><input type="checkbox" id="enableEye" /> Enable eye reminders</label>
+        <label><input type="checkbox" id="enablePhysical" /> Enable physical reminders</label>
+        <label><input type="checkbox" id="enableBreathing" /> Enable breathing reminders</label>
+      </div>
+      <div class="theme-row">
+        <span>Theme</span>
+        <button data-theme-switch="light" class="btn">Light</button>
+        <button data-theme-switch="dark" class="btn">Dark</button>
+      </div>
+    </section>
+
+    <section class="card live-status">
+      <h2>Live Session</h2>
+      <div class="timer-wrapper">
+        <div class="timer" id="sessionTimer">00:00:00</div>
+        <div class="timer-meta">
+          <span id="nextEyeReminder">Next eye break: --</span>
+          <span id="nextPhysicalReminder">Next stretch break: --</span>
+          <span id="nextBreathingReminder">Next breathing break: --</span>
+        </div>
+      </div>
+      <div class="progress-track">
+        <div id="sessionProgress" class="progress-bar"></div>
+      </div>
+      <p id="healthAlert" class="health-alert">Session idle.</p>
+    </section>
+
+    <section class="card exercises">
+      <h2>Eye Exercise Guidance</h2>
+      <div class="exercise-grid">
+        <article class="exercise-card">
+          <h3>20-20-20 Rule</h3>
+          <p>Every 20 minutes, look at something 20 feet away for 20 seconds.</p>
+          <button class="btn" data-exercise="rule202020">Start 20s Focus</button>
+          <div class="animation eye-focus" id="focusAnimation"></div>
+        </article>
+        <article class="exercise-card">
+          <h3>Blinking Exercise</h3>
+          <p>Blink gently 10 times to reduce dryness.</p>
+          <button class="btn" data-exercise="blink">Guide Blinking</button>
+          <div class="animation blink" id="blinkAnimation"></div>
+        </article>
+        <article class="exercise-card">
+          <h3>Eye Rotation</h3>
+          <p>Rotate eyes clockwise then counter-clockwise.</p>
+          <button class="btn" data-exercise="rotate">Start Rotation</button>
+          <div class="animation rotate" id="rotateAnimation"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="card wellness">
+      <h2>Physical & Breathing Breaks</h2>
+      <div class="exercise-grid">
+        <article class="exercise-card">
+          <h3>Stretch & Posture</h3>
+          <p>Roll shoulders, straighten back, stand up for 1 minute.</p>
+          <button class="btn" data-exercise="stretch">Start Stretch Guide</button>
+          <div class="animation stretch" id="stretchAnimation"></div>
+        </article>
+        <article class="exercise-card">
+          <h3>Breathing (1 minute)</h3>
+          <p>Inhale for 4s, hold for 4s, exhale for 6s.</p>
+          <button class="btn" data-exercise="breathe">Start Breathing Guide</button>
+          <div class="animation breathe" id="breathAnimation"></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="card analytics">
+      <h2>Analytics Dashboard</h2>
+      <div class="chart-wrap">
+        <h3>Daily Usage (Last 7 days)</h3>
+        <canvas id="dailyChart" width="500" height="180"></canvas>
+      </div>
+      <div class="chart-wrap">
+        <h3>Weekly Usage (Last 8 weeks)</h3>
+        <canvas id="weeklyChart" width="500" height="180"></canvas>
+      </div>
+      <div class="stats-grid">
+        <p>Eye reminder compliance: <strong id="eyeCompliance">0%</strong></p>
+        <p>Physical break compliance: <strong id="physicalCompliance">0%</strong></p>
+        <p>Breathing compliance: <strong id="breathingCompliance">0%</strong></p>
+      </div>
+      <div class="tips" id="tipsPanel"></div>
+    </section>
+  </main>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-content card">
+      <h3 id="modalTitle">Reminder</h3>
+      <p id="modalMessage"></p>
+      <div class="modal-actions">
+        <button id="modalDone" class="btn btn-primary">Done</button>
+        <button id="modalSnooze" class="btn">Snooze 5m</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
