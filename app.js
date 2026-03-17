@@ -9,6 +9,8 @@ const defaultState = {
   soundType: 'chime',
   autoStop: false,
   lockAtLimit: false,
+  takeoverMode: true,
+  kioskMode: false,
   enableEye: true,
   enablePhysical: true,
   enableBreathing: true,
@@ -47,6 +49,8 @@ class EyeCareBuddy {
       soundType: document.getElementById('soundType'),
       autoStop: document.getElementById('autoStop'),
       lockAtLimit: document.getElementById('lockAtLimit'),
+      takeoverMode: document.getElementById('takeoverMode'),
+      kioskMode: document.getElementById('kioskMode'),
       enableEye: document.getElementById('enableEye'),
       enablePhysical: document.getElementById('enablePhysical'),
       enableBreathing: document.getElementById('enableBreathing'),
@@ -67,6 +71,12 @@ class EyeCareBuddy {
       modalSnooze: document.getElementById('modalSnooze'),
       lockOverlay: document.getElementById('lockOverlay'),
       unlockSessionBtn: document.getElementById('unlockSessionBtn'),
+      takeoverOverlay: document.getElementById('takeoverOverlay'),
+      takeoverTitle: document.getElementById('takeoverTitle'),
+      takeoverMessage: document.getElementById('takeoverMessage'),
+      takeoverCountdown: document.getElementById('takeoverCountdown'),
+      takeoverDoneBtn: document.getElementById('takeoverDoneBtn'),
+      takeoverSnoozeBtn: document.getElementById('takeoverSnoozeBtn'),
       miniWorkoutBtn: document.getElementById('miniWorkoutBtn'),
       toastContainer: document.getElementById('toastContainer'),
       dailyChart: document.getElementById('dailyChart'),
@@ -86,6 +96,8 @@ class EyeCareBuddy {
     this.el.modalDone.addEventListener('click', () => this.resolveReminder(true));
     this.el.modalSnooze.addEventListener('click', () => this.snoozeReminder());
     this.el.unlockSessionBtn.addEventListener('click', () => this.unlockSession());
+    this.el.takeoverDoneBtn.addEventListener('click', () => this.resolveTakeover(true));
+    this.el.takeoverSnoozeBtn.addEventListener('click', () => this.resolveTakeover(false));
     this.el.miniWorkoutBtn.addEventListener('click', () => this.triggerMiniWorkout(true));
 
     document.querySelectorAll('input, select').forEach((ctrl) => {
@@ -130,6 +142,8 @@ class EyeCareBuddy {
     this.el.soundType.value = this.state.soundType;
     this.el.autoStop.checked = this.state.autoStop;
     this.el.lockAtLimit.checked = this.state.lockAtLimit;
+    this.el.takeoverMode.checked = this.state.takeoverMode;
+    this.el.kioskMode.checked = this.state.kioskMode;
     this.el.enableEye.checked = this.state.enableEye;
     this.el.enablePhysical.checked = this.state.enablePhysical;
     this.el.enableBreathing.checked = this.state.enableBreathing;
@@ -152,6 +166,8 @@ class EyeCareBuddy {
     this.state.soundType = this.el.soundType.value;
     this.state.autoStop = this.el.autoStop.checked;
     this.state.lockAtLimit = this.el.lockAtLimit.checked;
+    this.state.takeoverMode = this.el.takeoverMode.checked;
+    this.state.kioskMode = this.el.kioskMode.checked;
     this.state.enableEye = this.el.enableEye.checked;
     this.state.enablePhysical = this.el.enablePhysical.checked;
     this.state.enableBreathing = this.el.enableBreathing.checked;
@@ -174,6 +190,12 @@ class EyeCareBuddy {
     this.el.startBtn.disabled = true;
     this.el.stopBtn.disabled = false;
     this.setHealthAlert('Session active. Focus softly, blink often, and keep posture aligned.');
+
+    if (this.state.kioskMode && document.fullscreenElement == null) {
+      document.documentElement.requestFullscreen().catch(() => {
+        this.showToast('Fullscreen mode blocked by browser. Keep this tab open for strong alerts.');
+      });
+    }
 
     this.session.timer = setInterval(() => {
       this.session.elapsedSec += 1;
@@ -268,9 +290,44 @@ class EyeCareBuddy {
       this.showBrowserNotification(`${this.titleCase(type)} Reminder`, message);
     }
 
+    if (this.state.takeoverMode) {
+      const takeoverSeconds = type === 'eye' ? 20 : 60;
+      this.showTakeover(type, message, takeoverSeconds);
+    }
+
     this.announce(`${this.titleCase(type)} reminder triggered.`);
     this.persist();
     this.updateCompliance();
+  }
+
+  showTakeover(type, message, seconds) {
+    this.takeoverRemaining = seconds;
+    this.takeoverType = type;
+    this.el.takeoverTitle.textContent = `${this.titleCase(type)} Break`;
+    this.el.takeoverMessage.textContent = message;
+    this.el.takeoverCountdown.textContent = this.formatCountdown(seconds);
+    this.el.takeoverOverlay.classList.remove('hidden');
+
+    clearInterval(this.takeoverTimer);
+    this.takeoverTimer = setInterval(() => {
+      this.takeoverRemaining -= 1;
+      this.el.takeoverCountdown.textContent = this.formatCountdown(this.takeoverRemaining);
+      if (this.takeoverRemaining <= 0) {
+        this.resolveTakeover(true);
+      }
+    }, 1000);
+  }
+
+  resolveTakeover(completed) {
+    clearInterval(this.takeoverTimer);
+    this.el.takeoverOverlay.classList.add('hidden');
+    if (!this.pendingReminder) return;
+
+    if (completed) {
+      this.resolveReminder(true);
+    } else {
+      this.snoozeReminder();
+    }
   }
 
   triggerMiniWorkout(userInitiated) {
@@ -372,7 +429,11 @@ class EyeCareBuddy {
 
   showBrowserNotification(title, body) {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    new Notification(title, { body, icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text y="50" font-size="46">👁️</text></svg>' });
+    new Notification(title, {
+      body,
+      requireInteraction: true,
+      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text y="50" font-size="46">👁️</text></svg>'
+    });
   }
 
   showToast(message) {
@@ -606,5 +667,5 @@ class EyeCareBuddy {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  new EyeCareBuddy();
+  window.__appInstance = new EyeCareBuddy();
 });

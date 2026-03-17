@@ -60,6 +60,8 @@
       <div class="toggle-row" role="group" aria-label="Toggles">
         <label><input type="checkbox" id="autoStop" /> Auto-stop at session limit</label>
         <label><input type="checkbox" id="lockAtLimit" /> Lock screen at health limit</label>
+        <label><input type="checkbox" id="takeoverMode" /> Full-screen takeover reminder</label>
+        <label><input type="checkbox" id="kioskMode" /> Kiosk full-screen session mode</label>
         <label><input type="checkbox" id="enableEye" /> Eye reminders</label>
         <label><input type="checkbox" id="enablePhysical" /> Physical reminders</label>
         <label><input type="checkbox" id="enableBreathing" /> Breathing reminders</label>
@@ -178,6 +180,20 @@
       <h3 id="lockTitle">Extended Break Required</h3>
       <p>You have exceeded your healthy screen-time threshold. Please step away for 5 minutes.</p>
       <button id="unlockSessionBtn" class="btn btn-primary" type="button">I Took a Break</button>
+    </div>
+  </div>
+
+  <div id="takeoverOverlay" class="takeover-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="takeoverTitle">
+    <div class="takeover-content">
+      <p class="takeover-badge">⚠️ Health Break Alert</p>
+      <h2 id="takeoverTitle">Break Time</h2>
+      <p id="takeoverMessage">Time to rest your eyes.</p>
+      <div class="takeover-countdown" id="takeoverCountdown">00:20</div>
+      <div class="takeover-eye"></div>
+      <div class="modal-actions">
+        <button id="takeoverDoneBtn" class="btn btn-primary" type="button">Break Completed</button>
+        <button id="takeoverSnoozeBtn" class="btn" type="button">Snooze 5m</button>
+      </div>
     </div>
   </div>
 
