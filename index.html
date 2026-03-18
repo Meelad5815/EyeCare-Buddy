@@ -1,202 +1,58 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-contrast="normal">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EyeCare Buddy</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <title>EyeCare Buddy Desktop</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <a class="skip-link" href="#mainContent">Skip to main content</a>
+  <main class="container">
+    <h1>👁️ EyeCare Buddy (Desktop)</h1>
+    <p class="lead">Mandatory break enforcement with fullscreen lock window.</p>
 
-  <header class="app-header card" role="banner">
-    <div>
-      <h1>👁️ EyeCare Buddy</h1>
-      <p class="subtitle">Advanced eye-strain prevention with reminders, guided wellness breaks, and analytics.</p>
-    </div>
-    <div class="header-actions" role="group" aria-label="Session actions">
-      <button id="requestNotificationBtn" class="btn" type="button">Enable Browser Notifications</button>
-      <button id="startSessionBtn" class="btn btn-primary" type="button">Start Session</button>
-      <button id="stopSessionBtn" class="btn btn-danger" type="button" disabled>Stop Session</button>
-    </div>
-  </header>
-
-  <main id="mainContent" class="app-grid">
-    <section class="card controls" aria-labelledby="controlsTitle">
-      <h2 id="controlsTitle">Session & Reminder Controls</h2>
-
-      <div class="form-grid">
-        <label for="sessionLimit">Session Limit (minutes)</label>
-        <input id="sessionLimit" type="number" min="15" max="240" step="5" />
-
-        <label for="eyeInterval">Eye Reminder Interval (minutes)</label>
-        <input id="eyeInterval" type="number" min="15" max="60" step="5" />
-
-        <label for="physicalInterval">Physical Break Interval (minutes)</label>
-        <input id="physicalInterval" type="number" min="20" max="90" step="5" />
-
-        <label for="breathingInterval">Breathing Break Interval (minutes)</label>
-        <input id="breathingInterval" type="number" min="20" max="90" step="5" />
-
-        <label for="notificationStyle">Notification Type</label>
-        <select id="notificationStyle">
-          <option value="modal">Visual Pop-up</option>
-          <option value="toast">Visual Toast</option>
-          <option value="browser">Browser Notification API</option>
-          <option value="both">Visual + Browser</option>
-        </select>
-
-        <label for="soundType">Sound Mode</label>
-        <select id="soundType">
-          <option value="chime">Soft Chime</option>
-          <option value="beep">Gentle Beep</option>
-          <option value="none">Silent</option>
-        </select>
+    <section class="card">
+      <h2>Session Controls</h2>
+      <div class="row">
+        <button id="startBtn">Start Monitoring</button>
+        <button id="stopBtn">Stop Monitoring</button>
       </div>
-
-      <div class="toggle-row" role="group" aria-label="Toggles">
-        <label><input type="checkbox" id="autoStop" /> Auto-stop at session limit</label>
-        <label><input type="checkbox" id="lockAtLimit" /> Lock screen at health limit</label>
-        <label><input type="checkbox" id="takeoverMode" /> Full-screen takeover reminder</label>
-        <label><input type="checkbox" id="kioskMode" /> Kiosk full-screen session mode</label>
-        <label><input type="checkbox" id="enableEye" /> Eye reminders</label>
-        <label><input type="checkbox" id="enablePhysical" /> Physical reminders</label>
-        <label><input type="checkbox" id="enableBreathing" /> Breathing reminders</label>
-        <label><input type="checkbox" id="enableMiniWorkout" /> Mini-workout popups</label>
-      </div>
-
-      <div class="theme-row" role="group" aria-label="Display settings">
-        <span>Theme:</span>
-        <button data-theme-switch="light" class="btn" type="button">Light</button>
-        <button data-theme-switch="dark" class="btn" type="button">Dark</button>
-        <span>Contrast:</span>
-        <button data-contrast-switch="normal" class="btn" type="button">Normal</button>
-        <button data-contrast-switch="high" class="btn" type="button">High</button>
-      </div>
+      <p id="statusText">Status: Idle</p>
+      <p id="sessionTimer">Session: 00:00:00</p>
+      <p id="breakTimer">Break: --</p>
     </section>
 
-    <section class="card live-status" aria-labelledby="liveStatusTitle">
-      <h2 id="liveStatusTitle">Live Session</h2>
-      <div class="timer-wrapper">
-        <p class="timer" id="sessionTimer" aria-live="polite">00:00:00</p>
-        <div class="timer-meta">
-          <span id="nextEyeReminder">Next eye break: --</span>
-          <span id="nextPhysicalReminder">Next stretch break: --</span>
-          <span id="nextBreathingReminder">Next breathing break: --</span>
-        </div>
+    <section class="card">
+      <h2>Customization</h2>
+      <div class="grid">
+        <label>Session Duration (min)<input id="sessionDurationMin" type="number" min="30" max="120" step="5" /></label>
+        <label>Break Duration (min)<input id="breakDurationMin" type="number" min="2" max="10" step="1" /></label>
+        <label>Warning Before Lock (sec)<input id="warningBeforeSec" type="number" min="15" max="300" step="15" /></label>
+        <label>Strictness
+          <select id="strictness">
+            <option value="soft">Soft (skip allowed)</option>
+            <option value="standard">Standard (skip allowed)</option>
+            <option value="strict">Strict (no skip)</option>
+          </select>
+        </label>
       </div>
-      <div class="progress-track" aria-label="session progress">
-        <div id="sessionProgress" class="progress-bar"></div>
-      </div>
-      <p id="healthAlert" class="health-alert" role="status" aria-live="assertive">Session idle.</p>
+      <label><input id="forcedLockMode" type="checkbox" /> Enable forced screen lock mode</label>
+      <button id="saveBtn">Save Settings</button>
     </section>
 
-    <section class="card exercises" aria-labelledby="exerciseTitle">
-      <h2 id="exerciseTitle">Interactive Eye Exercise Guidance</h2>
-      <div class="exercise-grid">
-        <article class="exercise-card">
-          <h3>20-20-20 Focus</h3>
-          <p>Look 20 feet away for 20 seconds every 20 minutes.</p>
-          <button class="btn" data-exercise="rule202020" type="button">Start 20s Focus</button>
-          <div class="animation eye-focus"></div>
-        </article>
-        <article class="exercise-card">
-          <h3>Blink Reset</h3>
-          <p>Blink gently 10 times to reduce dryness.</p>
-          <button class="btn" data-exercise="blink" type="button">Start Blink Guide</button>
-          <div class="animation blink"></div>
-        </article>
-        <article class="exercise-card">
-          <h3>Eye Rotation</h3>
-          <p>Slow clockwise + anti-clockwise eye circles.</p>
-          <button class="btn" data-exercise="rotate" type="button">Start Rotation Guide</button>
-          <div class="animation rotate"></div>
-        </article>
+    <section class="card">
+      <h2>Analytics</h2>
+      <div class="stats">
+        <p>Breaks Taken: <strong id="breaksTaken">0</strong></p>
+        <p>Breaks Skipped: <strong id="breaksSkipped">0</strong></p>
+        <p>Screen Minutes Today: <strong id="screenMinutesToday">0</strong></p>
       </div>
+      <canvas id="dailyCanvas" width="540" height="180"></canvas>
     </section>
 
-    <section class="card wellness" aria-labelledby="wellnessTitle">
-      <h2 id="wellnessTitle">Physical & Breathing Breaks</h2>
-      <div class="exercise-grid">
-        <article class="exercise-card">
-          <h3>Stretch + Posture</h3>
-          <p>Stand up, roll shoulders, align spine and relax jaw.</p>
-          <button class="btn" data-exercise="stretch" type="button">Start Stretch Guide</button>
-          <div class="animation stretch"></div>
-        </article>
-        <article class="exercise-card">
-          <h3>Box Breathing (1 minute)</h3>
-          <p>Inhale 4s · hold 4s · exhale 6s.</p>
-          <button class="btn" data-exercise="breathe" type="button">Start Breathing Guide</button>
-          <div class="animation breathe"></div>
-        </article>
-        <article class="exercise-card">
-          <h3>Mini Workout</h3>
-          <p>Quick energy reset: 10 calf raises + 10 neck rolls.</p>
-          <button class="btn" id="miniWorkoutBtn" type="button">Start Mini Workout</button>
-          <div class="animation workout"></div>
-        </article>
-      </div>
-    </section>
-
-    <section class="card analytics" aria-labelledby="analyticsTitle">
-      <h2 id="analyticsTitle">Analytics Dashboard</h2>
-      <div class="chart-wrap">
-        <h3>Daily Usage (Last 7 days)</h3>
-        <canvas id="dailyChart" width="520" height="180"></canvas>
-      </div>
-      <div class="chart-wrap">
-        <h3>Weekly Usage (Last 8 weeks)</h3>
-        <canvas id="weeklyChart" width="520" height="180"></canvas>
-      </div>
-      <div class="stats-grid">
-        <p>Eye exercise compliance: <strong id="eyeCompliance">0%</strong></p>
-        <p>Physical break compliance: <strong id="physicalCompliance">0%</strong></p>
-        <p>Breathing compliance: <strong id="breathingCompliance">0%</strong></p>
-      </div>
-      <div id="tipsPanel" class="tips"></div>
-    </section>
+    <div id="warnBanner" class="warn hidden">⚠ Break lock in 1 minute. Save work now.</div>
   </main>
 
-  <section class="sr-only" aria-live="polite" id="screenReaderAnnouncer"></section>
-  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
-
-  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-content card">
-      <h3 id="modalTitle">Reminder</h3>
-      <p id="modalMessage"></p>
-      <div class="modal-actions">
-        <button id="modalDone" class="btn btn-primary" type="button">Done</button>
-        <button id="modalSnooze" class="btn" type="button">Snooze 5m</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="lockOverlay" class="lock-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="lockTitle">
-    <div class="lock-card card">
-      <h3 id="lockTitle">Extended Break Required</h3>
-      <p>You have exceeded your healthy screen-time threshold. Please step away for 5 minutes.</p>
-      <button id="unlockSessionBtn" class="btn btn-primary" type="button">I Took a Break</button>
-    </div>
-  </div>
-
-  <div id="takeoverOverlay" class="takeover-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="takeoverTitle">
-    <div class="takeover-content">
-      <p class="takeover-badge">⚠️ Health Break Alert</p>
-      <h2 id="takeoverTitle">Break Time</h2>
-      <p id="takeoverMessage">Time to rest your eyes.</p>
-      <div class="takeover-countdown" id="takeoverCountdown">00:20</div>
-      <div class="takeover-eye"></div>
-      <div class="modal-actions">
-        <button id="takeoverDoneBtn" class="btn btn-primary" type="button">Break Completed</button>
-        <button id="takeoverSnoozeBtn" class="btn" type="button">Snooze 5m</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
+  <script src="renderer.js"></script>
 </body>
 </html>

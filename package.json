@@ -1,0 +1,13 @@
+{
+  "name": "eyecare-buddy",
+  "version": "1.0.0",
+  "description": "Electron desktop app for enforced eye-care breaks",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "check": "node --check main.js && node --check preload.js && node --check renderer.js && node --check break.js"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0"
+  }
+}

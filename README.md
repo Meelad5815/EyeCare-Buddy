@@ -1,34 +1,60 @@
-# EyeCare Buddy
+# EyeCare Buddy (Electron Desktop App)
 
-EyeCare Buddy is a fully functional, deploy-ready web app that helps users prevent eye strain, fatigue, and physical discomfort during long laptop/desktop sessions.
+EyeCare Buddy is an advanced desktop app built with Electron to prevent eye strain and enforce mandatory breaks.
 
-## Key Features
+## What it does
 
-- **Real-time session tracking** with configurable session limits and countdown indicators.
-- **Custom reminders** for eye care, posture/stretching, and breathing exercises.
-- **Browser Notification API support** (with optional visual toast/modal + sound alerts).
-- **Interactive eye-exercise guidance** for the 20-20-20 rule, blink reset, and eye rotations.
-- **Physical wellness guidance** including stretch posture prompts and quick mini-workout nudges.
-- **Health safeguards** with near-limit warnings, optional auto-stop, and optional lock overlay at limit.
-- **Full-screen takeover alerts** that darken the whole browser view with a large break prompt and countdown.
-- **Optional kiosk full-screen mode** to keep EyeCare Buddy on top for stronger reminders while you work.
-- **Analytics dashboard** for daily/weekly usage charts plus break/exercise compliance metrics.
-- **Personalized tips** based on reminder completion and average usage patterns.
-- **Accessibility & UX improvements**: keyboard-focus states, skip link, live-region announcements, high-contrast mode, and responsive design.
-- **Local persistence** of all settings and stats through `localStorage`.
+- Runs as a desktop process and can keep monitoring in the background (via tray + timer engine in Electron main process).
+- Triggers mandatory breaks after configurable session time.
+- Opens a fullscreen, always-on-top black break window with message: **"Stop! Take a Break"**.
+- Uses kiosk mode for lock-style behavior during enforced breaks.
+- Shows guided break flow with rotating exercise instructions:
+  - 20-20-20 rule
+  - Blinking exercise
+  - Neck/shoulder stretches
+  - Breathing routine
+- Displays break countdown timer.
+- Sends warning notification before lock and break notification at lock time.
+- Supports customization:
+  - Session duration
+  - Break duration
+  - Warning lead time
+  - Strictness (soft/standard/strict)
+  - Forced lock mode on/off
+- Tracks analytics:
+  - Screen minutes today
+  - Breaks taken
+  - Breaks skipped
+  - Basic daily chart
 
-## Run Locally
+## Project files
+
+- `main.js` – Electron main process, timer engine, tray, lock window control, notifications, persistence.
+- `preload.js` – secure IPC bridge.
+- `index.html` + `renderer.js` – dashboard UI/settings/analytics.
+- `break.html` + `break.js` – fullscreen enforced break experience.
+- `style.css` – styles for dashboard and break lock overlay.
+
+## Run locally
+
+1. Install dependencies:
 
 ```bash
-python -m http.server 4173
+npm install
 ```
 
-Then open `http://127.0.0.1:4173`.
+2. Start app:
 
-## Project Structure
+```bash
+npm start
+```
 
-- `index.html` – semantic UI structure, forms, reminder modals, lock overlay.
-- `style.css` – themes, high contrast mode, responsive layout, animations, focus styles.
-- `app.js` – session engine, reminders, Notification API integration, analytics, persistence.
+3. Run syntax checks:
 
-> Note: Browsers do not allow websites to force-black the entire operating system screen while the site is unfocused. For the closest behavior, enable **Kiosk full-screen session mode** and browser notifications.
+```bash
+npm run check
+```
+
+## Note on enforcement
+
+EyeCare Buddy uses Electron fullscreen + always-on-top + kiosk window behavior for lock-style enforcement on desktop. OS-level security policies may still allow privileged system shortcuts depending on platform.
